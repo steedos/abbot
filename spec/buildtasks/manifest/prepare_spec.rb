@@ -11,21 +11,24 @@ describe "manifest:prepare" do
 
   def run_task; super('manifest:prepare'); end
 
-  it "sets build_root => target.build_root/language/build_number" do
+
+#Jack: Start
+
+  it "sets build_root => target.build_root/build_number/language" do
     run_task
-    expected = File.join(@target.build_root, 'fr', @target.build_number)
+    expected = File.join(@target.build_root, @target.build_number, 'fr')
     @manifest.build_root.should == expected
   end
 
-  it "sets staging_root => staging_root/language/build_number" do
+  it "sets staging_root => staging_root/build_number/language" do
     run_task
-    expected = File.join(@target.staging_root, 'fr', @target.build_number)
+    expected = File.join(@target.staging_root, @target.build_number, 'fr')
     @manifest.staging_root.should == expected
   end
 
-  it "sets url_root => url_root/language/build_number" do
+  it "sets url_root => url_root/build_number/language" do
     run_task
-    expected = [@target.url_root, 'fr', @target.build_number] * '/'
+    expected = [@target.url_root, @target.build_number, 'fr'] * '/'
     @manifest.url_root.should == expected
   end
 
@@ -34,10 +37,11 @@ describe "manifest:prepare" do
     @manifest.source_root.should == @target.source_root
   end
 
-  it "sets index_root => index_root/language/build_number" do
+  it "sets index_root => index_root/build_number/language" do
     run_task
-    expected = [@target.index_root, 'fr', @target.build_number] * '/'
+    expected = [@target.index_root, @target.build_number, 'fr'] * '/'
     @manifest.index_root.should == expected
   end
+#Jack: End
 
 end

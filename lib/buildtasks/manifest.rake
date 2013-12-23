@@ -20,25 +20,31 @@ namespace :manifest do
     # make sure a language was set
     manifest[:language] ||= :en
 
+    
     # build_root is target.build_root + language + build_number
-    manifest[:build_root] = File.join(target[:build_root],
-      manifest[:language].to_s, target[:build_number].to_s)
+    #Jack: 
+    #manifest[:build_root] = File.join(target[:build_root], manifest[:language].to_s, target[:build_number].to_s)
+    manifest[:build_root] = File.join(target[:build_root], target[:build_number].to_s, manifest[:language].to_s)
 
     # staging_root is target.staging_root + language + build_number
-    manifest[:staging_root] = File.join(target[:staging_root],
-      manifest[:language].to_s, target[:build_number].to_s)
+    #Jack: 
+    #manifest[:staging_root] = File.join(target[:staging_root], manifest[:language].to_s, target[:build_number].to_s)
+    manifest[:staging_root] = File.join(target[:staging_root], target[:build_number].to_s, manifest[:language].to_s)
 
     # cache_root is target.cache_root + language + build_number
-    manifest[:cache_root] = File.join(target[:cache_root],
-      manifest[:language].to_s, target[:build_number].to_s)
+    #Jack: 
+    #manifest[:cache_root] = File.join(target[:cache_root], manifest[:language].to_s, target[:build_number].to_s)
+    manifest[:cache_root] = File.join(target[:cache_root], target[:build_number].to_s, manifest[:language].to_s)
 
     # url_root
-    manifest[:url_root] =
-      [target[:url_root], manifest[:language], target[:build_number]].join('/')
+    #Jack: 
+    #manifest[:url_root] = [target[:url_root], manifest[:language], target[:build_number]].join('/')
+    manifest[:url_root] = [target[:url_root], target[:build_number], manifest[:language]].join('/')
 
     # index_root
-    manifest[:index_root] =
-      [target[:index_root], manifest[:language], target[:build_number]].join('/')
+    #Jack: 
+    #manifest[:index_root] = [target[:index_root], manifest[:language], target[:build_number]].join('/')
+    manifest[:index_root] = [target[:index_root], target[:build_number], manifest[:language]].join('/')
 
     # source_root
     manifest[:source_root] = target[:source_root]
@@ -137,6 +143,7 @@ namespace :manifest do
 
       # Is a localized resource!
       if entry[:filename] =~ /^([^\/]+)\.lproj\/(.+)$/
+        # Jack
         entry[:language] = (SC::Target::LONG_LANGUAGE_MAP[$1.to_s.downcase.to_sym]) || $1.to_sym
         entry[:localized] = true
 
@@ -847,6 +854,7 @@ namespace :manifest do
         # Note that you must generate an index.html entry for all three even
         # if you won't actually use it because other index.html entries may
         # reference it
+        orginal_resource_name = resource_name
         (is_index ? 3 : 1).times do |rep_cnt|
 
           manifest.add_composite resource_name,
@@ -865,7 +873,39 @@ namespace :manifest do
             is_hidden = true if !target.loadable? || !overwrite_current
             is_hidden = true if (rep_cnt>=2) && !is_pref_lang
           end
+
         end
+
+        # generate current directory 
+        if (is_index && target.loadable)
+
+          # generate current/zh-cn/index.html
+          resource_name = File.join('../../current/' + m_language.to_s, orginal_resource_name)
+          is_hidden = false
+          manifest.add_composite resource_name,
+            :entry_type => :html,
+            :combined => true,
+            :build_task => 'build:html',
+            :source_entries => entries, # make independent
+            :hidden     =>  is_hidden,
+            :include_required_targets => target.loadable? && is_index,
+            :friendly_url => friendly_url,
+            :is_index   => is_index
+
+          # generate current/index.html
+          resource_name = File.join('../../current/', orginal_resource_name)
+          is_hidden = true if !is_pref_lang
+          manifest.add_composite resource_name,
+            :entry_type => :html,
+            :combined => true,
+            :build_task => 'build:html',
+            :source_entries => entries, # make independent
+            :hidden     =>  is_hidden,
+            :include_required_targets => target.loadable? && is_index,
+            :friendly_url => friendly_url,
+            :is_index   => is_index
+        end
+
       end
     end
 

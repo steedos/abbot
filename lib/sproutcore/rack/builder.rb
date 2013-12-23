@@ -115,7 +115,10 @@ module SC
             manifest = target.manifest_for(:language => language).build!
 
             # lookup entry by url
-            unless entry = manifest.entries.find { |e| e[:url] == url }
+            unless entry = manifest.entries.find { 
+                |e| 
+                e[:url] == url 
+              }
               ret = not_found("No matching entry in target")
             end
           end
@@ -300,9 +303,13 @@ module SC
         # /foo/en/CURRENT/resource-name
         matched = url.match(/^#{Regexp.escape target[:index_root]}(\/([^\/\.]+))?(\/([^\/\.]+))?(\/(.*))?$/)
         unless matched.nil?
-          matched_language = matched[2] || target.config[:preferred_language]
+          # Jack
+          #matched_language = matched[2] || target.config[:preferred_language]
+          matched_language = matched[4] || target.config[:preferred_language]
 
-          matched_build_number = matched[4]
+          # Jack
+          # matched_build_number = matched[4]
+          matched_build_number = matched[2]
           if matched_build_number.blank? || matched_build_number == 'current'
             matched_build_number = target[:build_number]
           end
@@ -311,15 +318,19 @@ module SC
           resource_name = 'index.html' if resource_name.blank?
 
           # convert to url root based
-          url = [target[:url_root], matched_language, matched_build_number,
-                 resource_name] * '/'
+          # Jack
+          # url = [target[:url_root], matched_language, matched_build_number, resource_name] * '/'
+          url = [target[:url_root], matched_build_number, matched_language, resource_name] * '/'
           cacheable = false # index_root based urls are not cacheable
 
         # otherwise, just get the language -- url_root-based urls must be
         # fully qualified
         else
-          matched = url.match(/^#{Regexp.escape  target[:url_root]}\/([^\/\.]+)/)
-          matched_language = matched ? matched[1] : nil
+          # Jack
+          # matched = url.match(/^#{Regexp.escape  target[:url_root]}\/([^\/\.]+)/)
+          # matched_language = matched ? matched[1] : nil
+          matched = url.match(/^#{Regexp.escape  target[:url_root]}(\/([^\/\.]+))?(\/([^\/\.]+))/)
+          matched_language = matched ? matched[4] : nil
         end
 
         return [url, matched_language, cacheable]

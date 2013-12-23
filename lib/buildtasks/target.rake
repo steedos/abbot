@@ -17,6 +17,7 @@ namespace :target do
     project = env[:project]
 
     # use url_root config or merge url_prefix + target_name
+    # Jack ...
     if (target[:url_root] = config[:url_root]).nil?
       url = [nil, config[:url_prefix], target[:target_name]].join('/')
       url = url.gsub(/([^:])\/+/,'\1/').gsub(/^\/+/,'/') # remove extra //
@@ -26,6 +27,7 @@ namespace :target do
 
 
     # use index_root config or merge index_prefix + target_name
+    # Jack ...
     if (target[:index_root] = config[:index_root]).nil?
       url = [nil, config[:index_prefix], target[:target_name]].join('/')
       url = url.gsub(/([^:])\/+/,'\1/').gsub(/^\/+/,'/') # remove extra //
